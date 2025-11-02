@@ -1,42 +1,39 @@
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const connectDB = require('./config/database');
+const authRoutes = require('./routes/auth');
+const todoRoutes = require('./routes/todo');
+const errorHandler = require('./middleware/errorHandler');
+
 const app = express();
+
+// Middleware
 app.use(express.json());
-app.use(cors()); // allow cross-origin requests (safe for dev)
+app.use(cookieParser());
 
-let tasks = [];
-let id = 1;
+// Connect to MongoDB
+connectDB();
 
-// Create Task
-app.post('/tasks', (req, res) => {
-  const now = new Date().toISOString();
-  const task = {
-    id: id++,
-    title: req.body.title || '',
-    done: false,
-    lastModified: now
-  };
-  tasks.push(task);
-  res.status(201).json(task);
+// Routes
+app.use('/auth', authRoutes);
+app.use('/todos', todoRoutes);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// List Tasks
-app.get('/tasks', (req, res) => res.json(tasks));
-
-// Update Task
-app.put('/tasks/:id', (req, res) => {
-  const task = tasks.find(t => t.id == req.params.id);
-  if (!task) return res.sendStatus(404);
-  task.title = req.body.title ?? task.title;
-  task.done = req.body.done ?? task.done;
-  task.lastModified = new Date().toISOString();
-  res.json(task);
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
 });
 
-// Delete Task
-app.delete('/tasks/:id', (req, res) => {
-  tasks = tasks.filter(t => t.id != req.params.id);
-  res.sendStatus(204);
-});
+// Global error handler (must be last)
+app.use(errorHandler);
 
-app.listen(3000, () => console.log("Backend running on http://localhost:3000"));
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

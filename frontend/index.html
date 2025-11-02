@@ -2,17 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TODO App</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo App - Get Things Done</title>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <h1>My TODO List</h1>
+  <div class="container">
+    
+    <!-- Authentication Section -->
+    <div id="authContainer" class="auth-container">
+      <div class="auth-box">
+        <h1>📝 Todo App</h1>
+        <p class="subtitle">Stay organized, get things done</p>
+        
+        <div id="authError" class="error-message" style="display: none;"></div>
+        
+        <form onsubmit="return false;">
+          <input 
+            id="email" 
+            type="email" 
+            placeholder="Email address"
+            autocomplete="email"
+            required
+          >
+          
+          <input 
+            id="password" 
+            type="password" 
+            placeholder="Password"
+            autocomplete="current-password"
+            required
+          >
+          
+          <input 
+            id="firstName" 
+            type="text" 
+            placeholder="First name"
+            style="display: none;"
+            autocomplete="given-name"
+          >
+          
+          <input 
+            id="lastName" 
+            type="text" 
+            placeholder="Last name (optional)"
+            style="display: none;"
+            autocomplete="family-name"
+          >
+          
+          <button id="authAction" type="submit" class="btn btn-primary">
+            Login
+          </button>
+        </form>
+        
+        <div class="auth-switch">
+          <button id="showSignup" class="btn btn-link">
+            Don't have an account? Sign up
+          </button>
+          <button id="showLogin" class="btn btn-link" style="display: none;">
+            Already have an account? Login
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <input id="taskInput" type="text" placeholder="Enter new task">
-  <button onclick="addTask()">Add Task</button>
+    <!-- Main App Section (hidden until logged in) -->
+    <div id="appContainer" class="app-container" style="display: none;">
+      
+      <!-- Header -->
+      <header class="app-header">
+        <h1>📝 My Tasks</h1>
+        <div class="user-section">
+          <span id="userInfo"></span>
+          <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+        </div>
+      </header>
 
-  <ul id="taskList"></ul>
+      <!-- Add Task Section -->
+      <div class="add-task-section">
+        <input 
+          id="taskInput" 
+          type="text" 
+          placeholder="What needs to be done?"
+          maxlength="200"
+        >
+        <button id="addTaskBtn" class="btn btn-primary">Add Task</button>
+      </div>
 
-  <script src="script.js"></script>
+      <!-- Error/Loading Messages -->
+      <div id="todoError" class="error-message" style="display: none;"></div>
+      <div id="loading" class="loading" style="display: none;">Loading...</div>
+
+      <!-- Filter Buttons -->
+      <div class="filters">
+        <button id="filterAll" class="filter-btn active">All</button>
+        <button id="filterActive" class="filter-btn">Active</button>
+        <button id="filterCompleted" class="filter-btn">Completed</button>
+      </div>
+
+      <!-- Task List -->
+      <ul id="taskList" class="task-list">
+        <li class="empty">No tasks yet. Add one above!</li>
+      </ul>
+
+      <!-- Footer Actions -->
+      <div class="app-footer">
+        <span id="todoCount">0 tasks left</span>
+        <button id="clearCompleted" class="btn btn-link">Clear completed</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts - Load in order -->
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/todo.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
