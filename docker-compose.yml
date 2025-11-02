@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  backend:
+    build: ./backend
+    container_name: todo-backend
+    ports:
+      - "3000:3000"
+    # no volumes here — this is the production-style build
+    # environment:
+    #   - NODE_ENV=production
+
+  frontend:
+    build: ./frontend
+    container_name: todo-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend

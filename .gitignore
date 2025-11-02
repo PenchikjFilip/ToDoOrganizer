@@ -10,3 +10,8 @@ node_modules/
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# Ignore if working in VS Code
+.vscode/
+
+

@@ -1,4 +1,4 @@
-const API = "http://localhost:3000/tasks";
+const API = "/api/tasks";
 const listEl = document.getElementById("taskList");
 const inputEl = document.getElementById("taskInput");
 
@@ -29,6 +29,10 @@ async function addTask() {
 async function deleteTask(id) {
   await fetch(`${API}/${id}`, { method: "DELETE" });
   fetchTasks();
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 // Initial load
