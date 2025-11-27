@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Todo App - Get Things Done</title>
+  <title>Todo App - Secure with 2FA</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -13,59 +13,97 @@
     <div id="authContainer" class="auth-container">
       <div class="auth-box">
         <h1>📝 Todo App</h1>
-        <p class="subtitle">Stay organized, get things done</p>
+        <p class="subtitle">Stay organized, get things done - Now with 2FA Security 🔐</p>
         
-        <div id="authError" class="error-message" style="display: none;"></div>
-        
-        <form onsubmit="return false;">
-          <input 
-            id="email" 
-            type="email" 
-            placeholder="Email address"
-            autocomplete="email"
-            required
-          >
+        <!-- Credentials Form (Step 1) -->
+        <div id="credentialsForm">
+          <div id="authError" class="error-message" style="display: none;"></div>
           
-          <input 
-            id="password" 
-            type="password" 
-            placeholder="Password"
-            autocomplete="current-password"
-            required
-          >
+          <form onsubmit="return false;">
+            <input 
+              id="email" 
+              type="email" 
+              placeholder="Email address"
+              autocomplete="email"
+              required
+            >
+            
+            <input 
+              id="password" 
+              type="password" 
+              placeholder="Password"
+              autocomplete="current-password"
+              required
+            >
+            
+            <input 
+              id="firstName" 
+              type="text" 
+              placeholder="First name"
+              style="display: none;"
+              autocomplete="given-name"
+            >
+            
+            <input 
+              id="lastName" 
+              type="text" 
+              placeholder="Last name (optional)"
+              style="display: none;"
+              autocomplete="family-name"
+            >
+            
+            <button id="authAction" type="submit" class="btn btn-primary">
+              Login
+            </button>
+          </form>
           
-          <input 
-            id="firstName" 
-            type="text" 
-            placeholder="First name"
-            style="display: none;"
-            autocomplete="given-name"
-          >
+          <div class="auth-switch">
+            <button id="showSignup" class="btn btn-link">
+              Don't have an account? Sign up
+            </button>
+            <button id="showLogin" class="btn btn-link" style="display: none;">
+              Already have an account? Login
+            </button>
+          </div>
+        </div>
+
+        <!-- OTP Verification Form (Step 2) -->
+        <div id="otpForm" style="display: none;">
+          <div class="otp-header">
+            <h3>🔐 Verification Required</h3>
+            <p id="otpMessage" class="otp-instruction"></p>
+          </div>
+
+          <div id="otpError" class="error-message" style="display: none;"></div>
           
-          <input 
-            id="lastName" 
-            type="text" 
-            placeholder="Last name (optional)"
-            style="display: none;"
-            autocomplete="family-name"
-          >
-          
-          <button id="authAction" type="submit" class="btn btn-primary">
-            Login
-          </button>
-        </form>
-        
-        <div class="auth-switch">
-          <button id="showSignup" class="btn btn-link">
-            Don't have an account? Sign up
-          </button>
-          <button id="showLogin" class="btn btn-link" style="display: none;">
-            Already have an account? Login
-          </button>
+          <form onsubmit="return false;">
+            <input 
+              id="otpCode" 
+              type="text" 
+              placeholder="Enter 6-digit code"
+              maxlength="6"
+              pattern="[0-9]{6}"
+              autocomplete="one-time-code"
+              required
+            >
+            
+            <button id="verifyOtpBtn" type="submit" class="btn btn-primary">
+              Verify Code
+            </button>
+          </form>
+
+          <div class="otp-actions">
+            <button id="resendOtp" class="btn btn-link">
+              Didn't receive code? Resend
+            </button>
+            <button id="backBtn" class="btn btn-link">
+              ← Back to login
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
+    
     <!-- Main App Section (hidden until logged in) -->
     <div id="appContainer" class="app-container" style="display: none;">
       
@@ -77,7 +115,7 @@
           <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
       </header>
-
+      
       <!-- Add Task Section -->
       <div class="add-task-section">
         <input 
@@ -88,36 +126,35 @@
         >
         <button id="addTaskBtn" class="btn btn-primary">Add Task</button>
       </div>
-
+      
       <!-- Error/Loading Messages -->
       <div id="todoError" class="error-message" style="display: none;"></div>
       <div id="loading" class="loading" style="display: none;">Loading...</div>
-
+      
       <!-- Filter Buttons -->
       <div class="filters">
         <button id="filterAll" class="filter-btn active">All</button>
         <button id="filterActive" class="filter-btn">Active</button>
         <button id="filterCompleted" class="filter-btn">Completed</button>
       </div>
-
+      
       <!-- Task List -->
       <ul id="taskList" class="task-list">
         <li class="empty">No tasks yet. Add one above!</li>
       </ul>
-
+      
       <!-- Footer Actions -->
       <div class="app-footer">
         <span id="todoCount">0 tasks left</span>
         <button id="clearCompleted" class="btn btn-link">Clear completed</button>
       </div>
     </div>
-
   </div>
-
-  <!-- Scripts - Load in order -->
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/auth.js"></script>
-  <script src="assets/js/todo.js"></script>
+  
+  <!-- Scripts - Load in order: Service → Components → App -->
+  <script src="assets/js/services/api.service.js"></script>
+  <script src="assets/js/components/auth.component.js"></script>
+  <script src="assets/js/components/todo.component.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

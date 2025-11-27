@@ -26,6 +26,24 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters']
+  },
+  // ========== 2FA FIELDS ==========
+  isVerified: {
+    type: Boolean,
+    default: false // Account not verified until OTP is confirmed
+  },
+  otpCode: {
+    type: String,
+    default: null // Stores the current OTP
+  },
+  otpExpires: {
+    type: Date,
+    default: null // When the OTP expires
+  },
+  otpPurpose: {
+    type: String,
+    enum: ['signup', 'login', null],
+    default: null // What the OTP is for
   }
 }, {
   timestamps: true
@@ -35,7 +53,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
   // Only hash if password is modified
   if (!this.isModified('password')) return next();
-
+  
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -57,21 +75,68 @@ userSchema.methods.getJWT = function() {
     email: this.emailId,
     firstName: this.firstName
   };
-
   const secret = process.env.JWT_SECRET || 'shhh';
   const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
-
+  
   return jwt.sign(payload, secret, { expiresIn });
 };
 
-// Don't return password in JSON responses
+// ========== 2FA METHODS ==========
+
+// Method to generate OTP code
+userSchema.methods.generateOTP = function(purpose = 'signup') {
+  // Generate 6-digit code
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Set OTP with 10 minute expiration
+  this.otpCode = otp;
+  this.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  this.otpPurpose = purpose;
+  
+  return otp;
+};
+
+// Method to verify OTP
+userSchema.methods.verifyOTP = function(code, purpose) {
+  // Check if OTP exists
+  if (!this.otpCode) {
+    throw new Error('No OTP found. Please request a new one.');
+  }
+  
+  // Check if OTP matches the purpose
+  if (this.otpPurpose !== purpose) {
+    throw new Error('Invalid OTP purpose');
+  }
+  
+  // Check if OTP has expired
+  if (this.otpExpires < new Date()) {
+    this.otpCode = null;
+    this.otpExpires = null;
+    this.otpPurpose = null;
+    throw new Error('OTP has expired. Please request a new one.');
+  }
+  
+  // Check if code matches
+  if (this.otpCode !== code) {
+    throw new Error('Invalid OTP code');
+  }
+  
+  // Clear OTP after successful verification
+  this.otpCode = null;
+  this.otpExpires = null;
+  this.otpPurpose = null;
+  
+  return true;
+};
+
+// Don't return password and OTP in JSON responses
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.otpCode;
+  delete obj.otpExpires;
+  delete obj.otpPurpose;
   return obj;
 };
 
 module.exports = mongoose.model('User', userSchema);
-
-
-

@@ -1,3 +1,6 @@
+// All CRUD operations for the user’s to-do items, fully integrated with authentication
+
+
 const Todo = require('../models/todo');
 
 // Get all todos for the authenticated user
@@ -101,7 +104,7 @@ exports.deleteTodo = async (req, res, next) => {
   }
 };
 
-// Optional: Delete all completed todos
+// Delete all completed todos
 exports.deleteCompletedTodos = async (req, res, next) => {
   try {
     const result = await Todo.deleteMany({

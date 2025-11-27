@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const todoSchema = new mongoose.Schema({
-  title: {
+  title: { //  Title requires a string with min/max limits.
     type: String,
     required: [true, 'Title is required'],
     trim: true,
@@ -12,7 +12,7 @@ const todoSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  owner: {
+  owner: { // Owner must be a valid MongoDB ObjectId referencing a User
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'Owner is required']

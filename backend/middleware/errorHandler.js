@@ -1,4 +1,6 @@
-// Global error handling middleware
+// Global error handling middleware (layer)
+
+
 const errorHandler = (err, req, res, next) => {
   console.error('❌ Error:', err);
 

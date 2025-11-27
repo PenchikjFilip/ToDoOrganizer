@@ -1,38 +1,30 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+// A JWT-based authentication middleware, responsible for verifying user identity and attaching the authenticated user object to req.user.
 
-const authMiddleware = async (req, res, next) => {
-  try {
-    // Get token from cookie or Authorization header
-    const token = req.cookies?.token || req.get('Authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
+const authMiddleware = require('../middleware/auth');
 
-    // Verify token
-    const secret = process.env.JWT_SECRET || 'shhh';
-    const decoded = jwt.verify(token, secret);
+// POST /auth/signup - Register and send OTP (Phase 1)
+router.post('/signup', authController.signup);
 
-    // Find user and attach to request
-    const user = await User.findById(decoded._id).select('-password');
+// POST /auth/verify-signup - Verify OTP and complete registration (Phase 2)
+router.post('/verify-signup', authController.verifySignup);
 
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
-    }
+// POST /auth/login - Validate password and send OTP (Phase 1)
+router.post('/login', authController.login);
 
-    req.user = user;
-    next();
-  } catch (err) {
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-    if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
-    }
-    return res.status(401).json({ message: 'Authentication failed' });
-  }
-};
+// POST /auth/verify-login - Verify OTP and create session (Phase 2)
+router.post('/verify-login', authController.verifyLogin);
 
-module.exports = authMiddleware;
+// POST /auth/resend-otp - Resend OTP code
+router.post('/resend-otp', authController.resendOtp);
 
+// POST /auth/logout - Logout user
+router.post('/logout', authController.logout);
+
+// GET /auth/me - Get current user (requires authentication)
+router.get('/me', authMiddleware, authController.getCurrentUser);
+
+module.exports = router;

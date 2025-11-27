@@ -1,3 +1,6 @@
+// Defines and exports a connectDB function that handles connection to MongoDB using Mongoose
+
+
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
@@ -10,9 +13,9 @@ const connectDB = async () => {
     });
 
     console.log(`✅ MongoDB connected: ${mongoUri}`);
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1); // Exit process with failure
+  } catch (err) { 
+    console.error('❌ MongoDB connection error:', err.message); 
+    process.exit(1); // Exit process with failure. Ensures the app doesn’t continue running without a database connection.
   }
 };
 

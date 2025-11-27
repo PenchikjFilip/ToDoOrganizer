@@ -378,3 +378,97 @@ body {
     gap: 10px;
   }
 }
+/* ==================== 2FA / OTP STYLES ==================== */
+
+.otp-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.otp-header h3 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.otp-instruction {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+#otpForm form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#otpCode {
+  padding: 14px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1.5rem;
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-weight: 600;
+  transition: border-color 0.2s;
+}
+
+#otpCode:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+#otpCode::placeholder {
+  font-size: 1rem;
+  letter-spacing: normal;
+  font-weight: normal;
+}
+
+.otp-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.otp-actions .btn-link {
+  font-size: 0.9rem;
+}
+
+.success-message {
+  padding: 12px 16px;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: var(--success-color);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+/* Security badge */
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--success-color);
+  margin-top: 15px;
+}
+
+/* Responsive adjustments for OTP */
+@media (max-width: 600px) {
+  #otpCode {
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+  }
+  
+  .otp-header h3 {
+    font-size: 1.3rem;
+  }
+}
