@@ -1,9 +1,9 @@
-// Todo UI logic
+// Todo UI Component
 
-class TodoManager {
+class TodoComponent {
   constructor() {
     this.todos = [];
-    this.filter = 'all'; // all, active, completed
+    this.filter = 'all';
     this.initializeElements();
     this.attachEventListeners();
   }
@@ -14,13 +14,9 @@ class TodoManager {
     this.taskList = document.getElementById('taskList');
     this.errorEl = document.getElementById('todoError');
     this.loadingEl = document.getElementById('loading');
-    
-    // Filter buttons
     this.filterAllBtn = document.getElementById('filterAll');
     this.filterActiveBtn = document.getElementById('filterActive');
     this.filterCompletedBtn = document.getElementById('filterCompleted');
-    
-    // Action buttons
     this.clearCompletedBtn = document.getElementById('clearCompleted');
     this.todoCountEl = document.getElementById('todoCount');
   }
@@ -31,12 +27,9 @@ class TodoManager {
       if (e.key === 'Enter') this.addTask();
     });
     
-    // Filter buttons
     this.filterAllBtn.addEventListener('click', () => this.setFilter('all'));
     this.filterActiveBtn.addEventListener('click', () => this.setFilter('active'));
     this.filterCompletedBtn.addEventListener('click', () => this.setFilter('completed'));
-    
-    // Clear completed
     this.clearCompletedBtn.addEventListener('click', () => this.clearCompleted());
   }
 
@@ -59,7 +52,7 @@ class TodoManager {
     if (this.errorEl) {
       this.errorEl.textContent = message;
       this.errorEl.style.display = 'block';
-      setTimeout(() => this.clearError(), 5000); // Auto-hide after 5s
+      setTimeout(() => this.clearError(), 5000);
     }
   }
 
@@ -75,7 +68,7 @@ class TodoManager {
     this.showLoading(true);
     
     try {
-      this.todos = await window.API.todo.getAll();
+      this.todos = await window.ApiService.todo.getAll();
       this.renderTodos();
     } catch (err) {
       this.showError(`Failed to load todos: ${err.message}`);
@@ -95,8 +88,8 @@ class TodoManager {
     this.clearError();
     
     try {
-      const newTodo = await window.API.todo.create(title);
-      this.todos.unshift(newTodo); // Add to beginning
+      const newTodo = await window.ApiService.todo.create(title);
+      this.todos.unshift(newTodo);
       this.taskInput.value = '';
       this.renderTodos();
     } catch (err) {
@@ -111,8 +104,7 @@ class TodoManager {
     this.clearError();
     
     try {
-      const updated = await window.API.todo.update(id, { done: !todo.done });
-      // Update local state
+      const updated = await window.ApiService.todo.update(id, { done: !todo.done });
       const index = this.todos.findIndex(t => t._id === id);
       if (index !== -1) {
         this.todos[index] = updated;
@@ -131,7 +123,7 @@ class TodoManager {
     this.clearError();
     
     try {
-      await window.API.todo.delete(id);
+      await window.ApiService.todo.delete(id);
       this.todos = this.todos.filter(t => t._id !== id);
       this.renderTodos();
     } catch (err) {
@@ -154,7 +146,7 @@ class TodoManager {
     this.clearError();
     
     try {
-      await window.API.todo.deleteCompleted();
+      await window.ApiService.todo.deleteCompleted();
       this.todos = this.todos.filter(t => !t.done);
       this.renderTodos();
     } catch (err) {
@@ -165,7 +157,6 @@ class TodoManager {
   setFilter(filter) {
     this.filter = filter;
     
-    // Update button states
     [this.filterAllBtn, this.filterActiveBtn, this.filterCompletedBtn].forEach(btn => {
       btn.classList.remove('active');
     });
@@ -183,27 +174,23 @@ class TodoManager {
     } else if (this.filter === 'completed') {
       return this.todos.filter(t => t.done);
     }
-    return this.todos; // all
+    return this.todos;
   }
 
   renderTodos() {
     const filtered = this.getFilteredTodos();
     
-    // Update count
     const activeCount = this.todos.filter(t => !t.done).length;
     if (this.todoCountEl) {
       this.todoCountEl.textContent = `${activeCount} task${activeCount !== 1 ? 's' : ''} left`;
     }
     
-    // Render list
     if (filtered.length === 0) {
       this.taskList.innerHTML = '<li class="empty">No tasks to show</li>';
       return;
     }
 
     this.taskList.innerHTML = filtered.map(todo => this.renderTodoItem(todo)).join('');
-    
-    // Attach event listeners to new elements
     this.attachTodoEventListeners();
   }
 
@@ -224,7 +211,6 @@ class TodoManager {
   }
 
   attachTodoEventListeners() {
-    // Checkbox toggles
     this.taskList.querySelectorAll('.todo-checkbox').forEach((checkbox, index) => {
       const filtered = this.getFilteredTodos();
       const todo = filtered[index];
@@ -233,7 +219,6 @@ class TodoManager {
       }
     });
     
-    // Delete buttons
     this.taskList.querySelectorAll('.delete-btn').forEach((btn, index) => {
       const filtered = this.getFilteredTodos();
       const todo = filtered[index];
@@ -250,11 +235,5 @@ class TodoManager {
   }
 }
 
-// Initialize todo manager when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.todoManager = new TodoManager();
-  });
-} else {
-  window.todoManager = new TodoManager();
-}
+// Initialize when ready
+window.todoComponent = new TodoComponent();

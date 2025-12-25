@@ -1,122 +1,97 @@
-// All CRUD operations for the user’s to-do items, fully integrated with authentication
-
-
 const Todo = require('../models/todo');
+const asyncHandler = require('../utils/asyncHandler'); // Import utility
+
+// Helper function for consistent error throwing
+const throwClientError = (message, statusCode = 400) => {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  throw err;
+};
 
 // Get all todos for the authenticated user
-exports.getAllTodos = async (req, res, next) => {
-  try {
-    const todos = await Todo.find({ owner: req.user._id })
-      .sort({ createdAt: -1 }); // newest first
-    
-    res.json(todos);
-  } catch (err) {
-    next(err); // pass to error handler
-  }
-};
+exports.getAllTodos = asyncHandler(async (req, res) => {
+  const todos = await Todo.find({ owner: req.user._id })
+    .sort({ createdAt: -1 });
+  
+  res.json(todos);
+});
 
 // Get a single todo by ID
-exports.getTodoById = async (req, res, next) => {
-  try {
-    const todo = await Todo.findOne({
-      _id: req.params.id,
-      owner: req.user._id
-    });
+exports.getTodoById = asyncHandler(async (req, res) => {
+  const todo = await Todo.findOne({
+    _id: req.params.id,
+    owner: req.user._id
+  });
 
-    if (!todo) {
-      return res.status(404).json({ message: 'Todo not found' });
-    }
-
-    res.json(todo);
-  } catch (err) {
-    next(err);
+  if (!todo) {
+    throwClientError('Todo not found', 404);
   }
-};
+
+  res.json(todo);
+});
 
 // Create a new todo
-exports.createTodo = async (req, res, next) => {
-  try {
-    const { title } = req.body;
+exports.createTodo = asyncHandler(async (req, res) => {
+  const { title } = req.body;
 
-    if (!title || title.trim().length === 0) {
-      return res.status(400).json({ message: 'Title is required' });
-    }
-
-    const todo = new Todo({
-      title: title.trim(),
-      owner: req.user._id
-    });
-
-    await todo.save();
-    res.status(201).json(todo);
-  } catch (err) {
-    // Mongoose validation errors
-    if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: err.message });
-    }
-    next(err);
+  if (!title || title.trim().length === 0) {
+    throwClientError('Title is required');
   }
-};
+
+  const todo = new Todo({
+    title: title.trim(),
+    owner: req.user._id
+  });
+
+  // Mongoose validation errors will be caught by asyncHandler and forwarded
+  await todo.save(); 
+  res.status(201).json(todo);
+});
 
 // Update a todo
-exports.updateTodo = async (req, res, next) => {
-  try {
-    const { title, done } = req.body;
+exports.updateTodo = asyncHandler(async (req, res) => {
+  const { title, done } = req.body;
 
-    const todo = await Todo.findOne({
-      _id: req.params.id,
-      owner: req.user._id
-    });
+  const todo = await Todo.findOne({
+    _id: req.params.id,
+    owner: req.user._id
+  });
 
-    if (!todo) {
-      return res.status(404).json({ message: 'Todo not found' });
-    }
-
-    // Update only provided fields
-    if (title !== undefined) todo.title = title.trim();
-    if (done !== undefined) todo.done = done;
-
-    await todo.save();
-    res.json(todo);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      return res.status(400).json({ message: err.message });
-    }
-    next(err);
+  if (!todo) {
+    throwClientError('Todo not found', 404);
   }
-};
+
+  if (title !== undefined) todo.title = title.trim();
+  if (done !== undefined) todo.done = done;
+
+  // Mongoose validation errors will be caught by asyncHandler
+  await todo.save(); 
+  res.json(todo);
+});
 
 // Delete a todo
-exports.deleteTodo = async (req, res, next) => {
-  try {
-    const todo = await Todo.findOneAndDelete({
-      _id: req.params.id,
-      owner: req.user._id
-    });
+exports.deleteTodo = asyncHandler(async (req, res) => {
+  const todo = await Todo.findOneAndDelete({
+    _id: req.params.id,
+    owner: req.user._id
+  });
 
-    if (!todo) {
-      return res.status(404).json({ message: 'Todo not found' });
-    }
-
-    res.status(204).send(); // No content
-  } catch (err) {
-    next(err);
+  if (!todo) {
+    throwClientError('Todo not found', 404);
   }
-};
+
+  res.status(204).send();
+});
 
 // Delete all completed todos
-exports.deleteCompletedTodos = async (req, res, next) => {
-  try {
-    const result = await Todo.deleteMany({
-      owner: req.user._id,
-      done: true
-    });
+exports.deleteCompletedTodos = asyncHandler(async (req, res) => {
+  const result = await Todo.deleteMany({
+    owner: req.user._id,
+    done: true
+  });
 
-    res.json({ 
-      message: `Deleted ${result.deletedCount} completed todos`,
-      deletedCount: result.deletedCount 
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+  res.json({ 
+    message: `Deleted ${result.deletedCount} completed todos`,
+    deletedCount: result.deletedCount 
+  });
+});

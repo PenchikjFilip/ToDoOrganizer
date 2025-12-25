@@ -1,6 +1,15 @@
+//backend/models/user.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+if (!process.env.JWT_SECRET) {
+    // Note: The ideal place to throw is in server.js before Mongoose connects,
+    // but throwing here forces the issue if the model is loaded.
+    console.error("FATAL ERROR: JWT_SECRET environment variable is not defined.");
+    // Exit the process so the application cannot start in an insecure state
+    process.exit(1); 
+}
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -75,7 +84,7 @@ userSchema.methods.getJWT = function() {
     email: this.emailId,
     firstName: this.firstName
   };
-  const secret = process.env.JWT_SECRET || 'shhh';
+  const secret = process.env.JWT_SECRET;
   const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
   
   return jwt.sign(payload, secret, { expiresIn });

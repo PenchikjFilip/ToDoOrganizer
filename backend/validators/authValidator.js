@@ -1,7 +1,10 @@
+//backend/validators/authValidator.js
 const validator = require('validator');
 
-exports.validateSignUpData = (req) => {
-  const { firstName, emailId, password } = req.body;
+exports.validateSignUpData = (data) => {
+  const { firstName, emailId, password } = data;
+
+  console.log('🔍 Validating signup data:', { firstName, emailId, passwordLength: password?.length });
 
   if (!firstName || firstName.trim().length === 0) {
     throw new Error('First name is required');
@@ -14,12 +17,8 @@ exports.validateSignUpData = (req) => {
   if (!emailId) {
     throw new Error('Email is required');
   }
-
-  // if (!validator.isEmail(emailId)) {
-  //   throw new Error('Invalid email format');
-  // }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(emailId)) {
+  
+  if (!validator.isEmail(emailId)) {
     throw new Error('Invalid email format');
   }
 
@@ -31,8 +30,28 @@ exports.validateSignUpData = (req) => {
     throw new Error('Password must be at least 8 characters');
   }
 
-  if (!validator.isStrongPassword(password, { minLength: 8, minNumbers: 1, minUppercase: 1 })) {
-    throw new Error('Password must include at least one uppercase letter and number');
+  // More explicit validation
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+
+  console.log('🔍 Password validation check:', {
+    length: password.length,
+    hasUppercase,
+    hasLowercase,
+    hasNumber
+  });
+
+  if (!hasUppercase) {
+    throw new Error('Password must include at least one uppercase letter');
+  }
+
+  if (!hasLowercase) {
+    throw new Error('Password must include at least one lowercase letter');
+  }
+
+  if (!hasNumber) {
+    throw new Error('Password must include at least one number');
   }
 
   if (password.length > 100) {
@@ -40,8 +59,8 @@ exports.validateSignUpData = (req) => {
   }
 };
 
-exports.validateLoginData = (req) => {
-  const { emailId, password } = req.body;
+exports.validateLoginData = (data) => {
+  const { emailId, password } = data;
 
   if (!emailId || !password) {
     throw new Error('Email and password are required');

@@ -1,5 +1,6 @@
-exports.validateTodoCreate = (req) => {
-  const { title } = req.body;
+//backend/validators/todoValidator.js
+exports.validateTodoCreate = (data) => {
+  const { title } = data; // Reads from plain data object
 
   if (!title || title.trim().length === 0) {
     throw new Error('Title is required');
@@ -10,8 +11,8 @@ exports.validateTodoCreate = (req) => {
   }
 };
 
-exports.validateTodoUpdate = (req) => {
-  const { title, done } = req.body;
+exports.validateTodoUpdate = (data) => {
+  const { title, done } = data; // Reads from plain data object
 
   if (title !== undefined) {
     if (typeof title !== 'string') {
